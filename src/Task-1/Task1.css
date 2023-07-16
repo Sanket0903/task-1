@@ -1,0 +1,7 @@
+#buttonWrapper{
+    display: flex;
+    justify-content: end;
+    background-color: red;
+    margin-bottom: 50px;
+}
+
