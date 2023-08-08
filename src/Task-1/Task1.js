@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Table from 'react-bootstrap/Table';
+import Alert from 'react-bootstrap/Alert';
 import './Task1.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Product = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -24,9 +18,11 @@ const Product = () => {
   const [productImage, setProductImage] = useState(null);
   const [productList, setProductList] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [showAlert, setShowAlert] = useState(false);
 
   const handleDialogOpen = () => {
     setOpenDialog(true);
+    setShowAlert(false); // Hide the alert when opening the dialog
   };
 
   const handleDialogClose = () => {
@@ -67,7 +63,7 @@ const Product = () => {
       setQuantity(1);
       handleDialogClose();
     } else {
-      console.log('Form validation failed');
+      setShowAlert(true); // Show the alert when form validation fails
     }
   };
 
@@ -86,75 +82,88 @@ const Product = () => {
 
   return (
     <div>
-      <nav id="buttonWrapper">
-        <Button variant="contained" color="primary" onClick={handleDialogOpen}>
-          Buy Now
-        </Button>
-      </nav>
+      <Container id="buttonWrapper" className="mt-3">
+        <Button variant="primary" onClick={handleDialogOpen}>Buy Now</Button>
+      </Container>
 
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Add Product</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField label="Product Name" value={productName} onChange={handleProductNameChange} required />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField label="Product Price" value={productPrice} onChange={handleProductPriceChange} required />
-            </Grid>
-            <Grid item xs={12}>
-              <input type="file" accept="image/*" onChange={handleProductImageChange} required />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleAddProduct}>Add Product</Button>
-        </DialogActions>
-      </Dialog>
-
+      <Modal show={openDialog} onHide={handleDialogClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Product</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col>
+                <Form.Label>Product Name</Form.Label>
+                <Form.Control type="text" value={productName} onChange={handleProductNameChange} required />
+              </Col>
+              <Col>
+                <Form.Label>Product Price</Form.Label>
+                <Form.Control type="text" value={productPrice} onChange={handleProductPriceChange} required />
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Col>
+                <Form.Label>Product Image</Form.Label>
+                <Form.Control type="file" accept="image/*" onChange={handleProductImageChange} required />
+              </Col>
+            </Row>
+          </Form>
+          {showAlert && (
+            <Alert variant="danger" className="mt-3">
+              Please fill in all details.
+            </Alert>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleDialogClose}>Cancel</Button>
+          <Button variant="primary" onClick={handleAddProduct}>Add Product</Button>
+        </Modal.Footer>
+      </Modal>
       <div>
-        <Grid container spacing={2}>
-          {productList.map((product, index) => (
-            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-              <Card>
-                <CardContent>
-                  <img src={URL.createObjectURL(product.image)} alt={product.name} />
-                  <h3>{product.name}</h3>
-                  <p>{product.productPrice}</p>
-                </CardContent>
-                <CardActions>
-                  <Button onClick={() => handleQuantityChange(index, product.quantity - 1)}>-</Button>
-                  <span>{product.quantity}</span>
-                  <Button onClick={() => handleQuantityChange(index, product.quantity + 1)}>+</Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </div>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Product Name</TableCell>
-              <TableCell>Product Price</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell>Total</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+        <Container className="mt-3">
+          <Row>
             {productList.map((product, index) => (
-              <TableRow key={index}>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>{product.productPrice}</TableCell>
-                <TableCell>{product.quantity}</TableCell>
-                <TableCell>{product.price}</TableCell>
-              </TableRow>
+              <Col key={index} xs={12} sm={6} md={4} lg={3} className="mb-3">
+                <Card>
+                  <Card.Img variant="top" src={product.image && URL.createObjectURL(product.image)} alt={product.name} />
+                  <Card.Body>
+                    <Card.Title>{product.name}</Card.Title>
+                    <Card.Text>{product.productPrice}</Card.Text>
+                  </Card.Body>
+                  <Card.Footer>
+                    <Button variant="danger" onClick={() => handleQuantityChange(index, product.quantity - 1)}>-</Button>
+                    <span className="mx-2">{product.quantity}</span>
+                    <Button variant="success" onClick={() => handleQuantityChange(index, product.quantity + 1)}>+</Button>
+                  </Card.Footer>
+                </Card>
+              </Col>
             ))}
-          </TableBody>
+          </Row>
+        </Container>
+      </div>
+      <Container className="mt-3">
+        <Table>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Product Price</th>
+              <th>Quantity</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {productList.map((product, index) => (
+              <tr key={index}>
+                <td>{product.name}</td>
+                <td>{product.productPrice}</td>
+                <td>{product.quantity}</td>
+                <td>{product.price}</td>
+              </tr>
+            ))}
+          </tbody>
         </Table>
-      </TableContainer>
+      </Container>
     </div>
   );
 };
