@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
+import Title from 'react-bootstrap/Alert';
 import './Task1.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -22,7 +23,7 @@ const Product = () => {
 
   const handleDialogOpen = () => {
     setOpenDialog(true);
-    setShowAlert(false); // Hide the alert when opening the dialog
+    setShowAlert(false); 
   };
 
   const handleDialogClose = () => {
@@ -63,11 +64,17 @@ const Product = () => {
       setQuantity(1);
       handleDialogClose();
     } else {
-      setShowAlert(true); // Show the alert when form validation fails
+      setShowAlert(true); 
     }
   };
-
+  const calculateTotalPrice = (product) => {
+    return (parseFloat(product.productPrice) * product.quantity).toFixed(2);
+  };
+  const calculateTotalQuantity = (product) =>{
+    return (parseFloat(product.quantity)).toFixed(2);
+  }
   const handleQuantityChange = (index, newQuantity) => {
+  if (newQuantity >= 0) {
     setProductList((prevProducts) =>
       prevProducts.map((product, i) => {
         if (i === index) {
@@ -78,13 +85,28 @@ const Product = () => {
         return product;
       })
     );
-  };
+  }
+};
+
+const calculateOverallTotal = () => {
+  const total = productList.reduce((acc, product) => {
+    return acc + parseFloat(calculateTotalPrice(product));
+  }, 0);
+  return total.toFixed(2);
+};
+
+const calculateOverallQuantity = () => {
+  const total1 = productList.reduce((acc, product) => {
+    return acc + parseFloat(calculateTotalQuantity(product));
+  }, 0);
+  return total1.toFixed(2);
+};
 
   return (
     <div>
-      <Container id="buttonWrapper" className="mt-3">
+      <div id="buttonWrapper" className="container-fluid">
         <Button variant="primary" onClick={handleDialogOpen}>Buy Now</Button>
-      </Container>
+      </div>
 
       <Modal show={openDialog} onHide={handleDialogClose}>
         <Modal.Header closeButton>
@@ -99,7 +121,7 @@ const Product = () => {
               </Col>
               <Col>
                 <Form.Label>Product Price</Form.Label>
-                <Form.Control type="text" value={productPrice} onChange={handleProductPriceChange} required />
+                <Form.Control type="number" value={productPrice} onChange={handleProductPriceChange} required />
               </Col>
             </Row>
             <Row className="mt-3">
@@ -127,11 +149,11 @@ const Product = () => {
               <Col key={index} xs={12} sm={6} md={4} lg={3} className="mb-3">
                 <Card>
                   <Card.Img variant="top" src={product.image && URL.createObjectURL(product.image)} alt={product.name} />
-                  <Card.Body>
-                    <Card.Title>{product.name}</Card.Title>
+                  <Card.Body style={{textAlign:'center'}}>
+                    <Card.Title >{product.name}</Card.Title>
                     <Card.Text>{product.productPrice}</Card.Text>
                   </Card.Body>
-                  <Card.Footer>
+                  <Card.Footer style={{textAlign:'center'}}>
                     <Button variant="danger" onClick={() => handleQuantityChange(index, product.quantity - 1)}>-</Button>
                     <span className="mx-2">{product.quantity}</span>
                     <Button variant="success" onClick={() => handleQuantityChange(index, product.quantity + 1)}>+</Button>
@@ -143,6 +165,7 @@ const Product = () => {
         </Container>
       </div>
       <Container className="mt-3">
+      <Title><h5>My Shopping Bag</h5> </Title>
         <Table>
           <thead>
             <tr>
@@ -157,14 +180,23 @@ const Product = () => {
               <tr key={index}>
                 <td>{product.name}</td>
                 <td>{product.productPrice}</td>
-                <td>{product.quantity}</td>
-                <td>{product.price}</td>
+                <td>{calculateTotalQuantity(product)}</td>
+                <td>{calculateTotalPrice(product)}</td>
               </tr>
             ))}
           </tbody>
+          <thead>
+            <tr>
+              <th>Total</th>
+              <th></th>
+              <th>{calculateOverallQuantity()}</th>
+              <th>{calculateOverallTotal()}</th>
+            </tr>
+          </thead>
         </Table>
       </Container>
     </div>
+    
   );
 };
 
